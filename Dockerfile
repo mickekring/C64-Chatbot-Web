@@ -1,5 +1,5 @@
 # Build stage för React
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 # Increase Node.js memory limit for large dependency trees
@@ -7,14 +7,14 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 COPY package*.json ./
 
-# Use npm ci for faster, reproducible installs from lock file
-RUN npm ci
+# Install all dependencies (including devDependencies for build)
+RUN npm install --legacy-peer-deps
 
 COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 
 # Copy package.json first (needed for npm prune)
