@@ -1,9 +1,15 @@
 # Build stage för React
 FROM node:18-alpine AS builder
 WORKDIR /app
+
+# Increase Node.js memory limit for large dependency trees
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 COPY package*.json ./
-# Installera ALLA dependencies för att kunna bygga React
-RUN npm install
+
+# Use npm ci for faster, reproducible installs from lock file
+RUN npm ci
+
 COPY . .
 RUN npm run build
 
@@ -11,9 +17,14 @@ RUN npm run build
 FROM node:18-alpine
 WORKDIR /app
 
-# Installera bara produktionsberoenden för servern
+# Copy package.json first (needed for npm prune)
 COPY package*.json ./
-RUN npm install --omit=dev
+
+# Copy node_modules from builder (avoids parallel npm install issue)
+COPY --from=builder /app/node_modules ./node_modules
+
+# Remove dev dependencies to slim down the image
+RUN npm prune --omit=dev
 
 # Kopiera byggd React-app från builder
 COPY --from=builder /app/build ./build
