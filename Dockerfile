@@ -8,7 +8,8 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 COPY package*.json ./
 
 # Install all dependencies (including devDependencies for build)
-RUN npm install --legacy-peer-deps
+# NODE_ENV=development ensures devDependencies are installed even if Coolify sets NODE_ENV=production
+RUN NODE_ENV=development npm install --legacy-peer-deps
 
 COPY . .
 RUN npm run build
