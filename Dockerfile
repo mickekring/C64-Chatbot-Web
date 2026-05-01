@@ -1,22 +1,21 @@
 # Build stage för React
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Increase Node.js memory limit for large dependency trees
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-COPY package.json ./
+COPY package.json package-lock.json ./
 
 # Install all dependencies (including devDependencies for build)
 # NODE_ENV=development ensures devDependencies are installed even if Coolify sets NODE_ENV=production
-# Don't use package-lock.json as it was generated with a different Node version
-RUN NODE_ENV=development npm install --legacy-peer-deps
+RUN NODE_ENV=development npm ci --legacy-peer-deps
 
 COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine
+FROM node:20-alpine
 WORKDIR /app
 
 # Copy package.json (needed for npm prune)
