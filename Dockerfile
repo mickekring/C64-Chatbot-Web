@@ -1,5 +1,5 @@
 # Build stage för React
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 # Increase Node.js memory limit for large dependency trees
@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine
+FROM node:24-alpine
 WORKDIR /app
 
 # Copy package.json (needed for npm prune)
